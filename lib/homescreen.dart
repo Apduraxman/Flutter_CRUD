@@ -20,7 +20,7 @@ class HomeScreen extends StatelessWidget {
               letterSpacing: 1.2,
             ),
           ),
-          backgroundColor: Colors.indigo,
+          backgroundColor: const Color.fromARGB(255, 113, 179, 255),
           elevation: 4,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(18)),

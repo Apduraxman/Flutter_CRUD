@@ -20,6 +20,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   int? editingStudentId;
 
+  final Color primaryBlue = const Color(0xFF2196F3); // Light Blue 500
+  final Color lightBlue = const Color(0xFFE3F2FD); // Light Blue 50
+
   @override
   void initState() {
     super.initState();
@@ -125,57 +128,88 @@ class _StudentsScreenState extends State<StudentsScreen> {
       child: Column(
         children: [
           Card(
-            elevation: 3,
-            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            elevation: 4,
+            color: lightBlue,
+            margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
                   TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Name',
-                      prefixIcon: Icon(Icons.person),
+                      prefixIcon: Icon(Icons.person, color: primaryBlue),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: primaryBlue, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: addressController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Address',
-                      prefixIcon: Icon(Icons.home),
+                      prefixIcon: Icon(Icons.home, color: primaryBlue),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: primaryBlue, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: sectionController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Section',
-                      prefixIcon: Icon(Icons.class_),
+                      prefixIcon: Icon(Icons.class_, color: primaryBlue),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: primaryBlue, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: shiftController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Shift',
-                      prefixIcon: Icon(Icons.schedule),
+                      prefixIcon: Icon(Icons.schedule, color: primaryBlue),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: primaryBlue, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       icon: Icon(
                         editingStudentId != null ? Icons.save : Icons.add,
+                        color: Colors.white,
                       ),
                       label: Text(
                         editingStudentId != null
                             ? 'Update Student'
                             : 'Add Student',
+                        style: const TextStyle(color: Colors.white),
                       ),
                       onPressed: () {
                         if (editingStudentId != null) {
@@ -186,6 +220,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryBlue,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         textStyle: const TextStyle(fontSize: 16),
                         shape: RoundedRectangleBorder(
@@ -198,12 +233,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Card(
             elevation: 2,
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            color: lightBlue,
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.45,
@@ -226,18 +262,25 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         final student = students[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.indigo.shade100,
+                            backgroundColor: primaryBlue.withOpacity(0.15),
                             child: Text(
                               student['student_name'] != null &&
                                       student['student_name'].isNotEmpty
                                   ? student['student_name'][0].toUpperCase()
                                   : '?',
-                              style: const TextStyle(color: Colors.indigo),
+                              style: TextStyle(color: primaryBlue),
                             ),
                           ),
-                          title: Text(student['student_name'] ?? ''),
+                          title: Text(
+                            student['student_name'] ?? '',
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           subtitle: Text(
                             '${student['student_address'] ?? ''} • ${student['student_section'] ?? ''} • ${student['student_shift'] ?? ''}',
+                            style: TextStyle(color: Colors.blue.shade400),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
