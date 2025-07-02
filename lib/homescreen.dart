@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'flutter CRUD',
+            'My App',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 22,
