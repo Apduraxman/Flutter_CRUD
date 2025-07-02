@@ -33,10 +33,10 @@ class _TeachersScreenState extends State<TeachersScreen> {
       setState(() {
         teachers = response as List<dynamic>;
       });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error fetching teachers: $e')));
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching teachers: $error')),
+      );
     }
   }
 
@@ -121,88 +121,155 @@ class _TeachersScreenState extends State<TeachersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(labelText: 'Name'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: addressController,
-            decoration: const InputDecoration(labelText: 'Address'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: subjectController,
-            decoration: const InputDecoration(labelText: 'Subject'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: experienceController,
-            decoration: const InputDecoration(labelText: 'Experience'),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (editingTeacherId != null) {
-              updateTeacher(editingTeacherId!);
-            } else {
-              addTeacher();
-              clearControllers();
-            }
-          },
-          child: Text(
-            editingTeacherId != null ? 'Update Teacher' : 'Add Teacher',
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder<void>(
-            future: teachersFuture,
-            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error fetching teachers'));
-              } else {
-                return ListView.builder(
-                  itemCount: teachers.length,
-                  itemBuilder: (context, index) {
-                    final teacher = teachers[index];
-                    return ListTile(
-                      title: Text(teacher['teacher_name'] ?? ''),
-                      subtitle: Text(
-                        '${teacher['teacher_address'] ?? ''} - ${teacher['teacher_subject'] ?? ''} - ${teacher['teacher_experience'] ?? ''}',
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Card(
+            elevation: 3,
+            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Address',
+                      prefixIcon: Icon(Icons.home),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: subjectController,
+                    decoration: const InputDecoration(
+                      labelText: 'Subject',
+                      prefixIcon: Icon(Icons.book),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: experienceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Experience',
+                      prefixIcon: Icon(Icons.school),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: Icon(
+                        editingTeacherId != null ? Icons.save : Icons.add,
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => startEditingTeacher(teacher),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => deleteTeacher(teacher['id']),
-                          ),
-                        ],
+                      label: Text(
+                        editingTeacherId != null
+                            ? 'Update Teacher'
+                            : 'Add Teacher',
                       ),
+                      onPressed: () {
+                        if (editingTeacherId != null) {
+                          updateTeacher(editingTeacherId!);
+                        } else {
+                          addTeacher();
+                          clearControllers();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(fontSize: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
+              child: FutureBuilder<void>(
+                future: teachersFuture,
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error fetching teachers'));
+                  } else {
+                    if (teachers.isEmpty) {
+                      return const Center(child: Text('No teachers found.'));
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: teachers.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final teacher = teachers[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.indigo.shade100,
+                            child: Text(
+                              teacher['teacher_name'] != null &&
+                                      teacher['teacher_name'].isNotEmpty
+                                  ? teacher['teacher_name'][0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(color: Colors.indigo),
+                            ),
+                          ),
+                          title: Text(teacher['teacher_name'] ?? ''),
+                          subtitle: Text(
+                            '${teacher['teacher_address'] ?? ''} • ${teacher['teacher_subject'] ?? ''} • ${teacher['teacher_experience'] ?? ''}',
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.amber,
+                                ),
+                                tooltip: 'Edit',
+                                onPressed: () => startEditingTeacher(teacher),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.redAccent,
+                                ),
+                                tooltip: 'Delete',
+                                onPressed: () => deleteTeacher(teacher['id']),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
-              }
-            },
+                  }
+                },
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

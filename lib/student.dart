@@ -18,13 +18,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
   final sectionController = TextEditingController();
   final shiftController = TextEditingController();
 
-  int? editingStudentId; // Track which student is being edited
+  int? editingStudentId;
 
   @override
   void initState() {
     super.initState();
     supabase = Supabase.instance.client;
-    studentsFuture = fetchStudents(); // Fetch students once
+    studentsFuture = fetchStudents();
   }
 
   Future<void> fetchStudents() async {
@@ -34,7 +34,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
         students = response as List<dynamic>;
       });
     } catch (error) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching students: $error')),
       );
@@ -49,34 +48,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
         'student_section': sectionController.text,
         'student_shift': shiftController.text,
       });
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Student added successfully')),
       );
-      studentsFuture = fetchStudents(); // Refresh the future
-      setState(() {}); // Trigger rebuild to update UI
+      studentsFuture = fetchStudents();
+      setState(() {});
     } catch (error) {
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text('Error adding student: $error')));
-    }
-  }
-
-  Future<void> deleteStudent(int id) async {
-    try {
-      await supabase.from('students').delete().eq('id', id);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Student deleted successfully')),
-      );
-      studentsFuture = fetchStudents(); // Refresh the future
-      setState(() {}); // Trigger rebuild to update UI
-    } catch (error) {
-      ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error deleting student: $error')));
     }
   }
 
@@ -91,20 +71,33 @@ class _StudentsScreenState extends State<StudentsScreen> {
             'student_shift': shiftController.text,
           })
           .eq('id', id);
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Student updated successfully')),
       );
       studentsFuture = fetchStudents();
       setState(() {
-        editingStudentId = null; // Reset editing state
+        editingStudentId = null;
       });
       clearControllers();
     } catch (error) {
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text('Error updating student: $error')));
+    }
+  }
+
+  Future<void> deleteStudent(int id) async {
+    try {
+      await supabase.from('students').delete().eq('id', id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Student deleted successfully')),
+      );
+      studentsFuture = fetchStudents();
+      setState(() {});
+    } catch (error) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error deleting student: $error')));
     }
   }
 
@@ -123,93 +116,160 @@ class _StudentsScreenState extends State<StudentsScreen> {
     addressController.clear();
     sectionController.clear();
     shiftController.clear();
-    editingStudentId = null; // Reset editing state
+    editingStudentId = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(labelText: 'Name'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: addressController,
-            decoration: const InputDecoration(labelText: 'Address'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: sectionController,
-            decoration: const InputDecoration(labelText: 'Section'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: shiftController,
-            decoration: const InputDecoration(labelText: 'Shift'),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (editingStudentId != null) {
-              updateStudent(editingStudentId!);
-            } else {
-              addStudent();
-              clearControllers();
-            }
-          },
-          child: Text(
-            editingStudentId != null ? 'Update Student' : 'Add Student',
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder<void>(
-            future: studentsFuture,
-            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error fetching students'));
-              } else {
-                return ListView.builder(
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    final student = students[index];
-                    return ListTile(
-                      title: Text(student['student_name']),
-                      subtitle: Text(
-                        '${student['student_address']} - ${student['student_section']} - ${student['student_shift']}',
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Card(
+            elevation: 3,
+            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Address',
+                      prefixIcon: Icon(Icons.home),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: sectionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Section',
+                      prefixIcon: Icon(Icons.class_),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: shiftController,
+                    decoration: const InputDecoration(
+                      labelText: 'Shift',
+                      prefixIcon: Icon(Icons.schedule),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: Icon(
+                        editingStudentId != null ? Icons.save : Icons.add,
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => startEditingStudent(student),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => deleteStudent(student['id']),
-                          ),
-                        ],
+                      label: Text(
+                        editingStudentId != null
+                            ? 'Update Student'
+                            : 'Add Student',
                       ),
+                      onPressed: () {
+                        if (editingStudentId != null) {
+                          updateStudent(editingStudentId!);
+                        } else {
+                          addStudent();
+                          clearControllers();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(fontSize: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
+              child: FutureBuilder<void>(
+                future: studentsFuture,
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error fetching students'));
+                  } else {
+                    if (students.isEmpty) {
+                      return const Center(child: Text('No students found.'));
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: students.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final student = students[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.indigo.shade100,
+                            child: Text(
+                              student['student_name'] != null &&
+                                      student['student_name'].isNotEmpty
+                                  ? student['student_name'][0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(color: Colors.indigo),
+                            ),
+                          ),
+                          title: Text(student['student_name'] ?? ''),
+                          subtitle: Text(
+                            '${student['student_address'] ?? ''} • ${student['student_section'] ?? ''} • ${student['student_shift'] ?? ''}',
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.amber,
+                                ),
+                                tooltip: 'Edit',
+                                onPressed: () => startEditingStudent(student),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.redAccent,
+                                ),
+                                tooltip: 'Delete',
+                                onPressed: () => deleteStudent(student['id']),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
-              }
-            },
+                  }
+                },
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
